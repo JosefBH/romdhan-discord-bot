@@ -16,15 +16,12 @@ params.update(ASR_STANDARD)
 
 adhan_times = adhan(
     day=date.today(),
-    location=(30.25,-97.75),
+    location=(33.88,9.53),
     parameters=params,
-    timezone_offset=-6,
+    timezone_offset=1,
 )
 
-# pprint(adhan_times)
-for i in adhan_times:
-    print(adhan_times[i])
-
+print(adhan_times['isha'])
 """
 adhan_times will be a dict containing datetime objects for the keys 'fajr',
 'shuruq', 'zuhr', 'asr', 'maghrib', and 'isha'

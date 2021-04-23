@@ -1,9 +1,12 @@
-import os
-import schedule 
 import time
 import discord
+import os
+from pprint import pprint 
+from datetime import datetime
+from datetime import date
 from dotenv import load_dotenv
-from discord.ext import commands
+from discord.ext import commands, tasks
+from prayertimes.prayertimes import PrayTimes 
 
 load_dotenv()
 token = os.getenv('TOKEN')
@@ -16,19 +19,46 @@ intents.members = True
 
 bot = commands.Bot(command_prefix='?', description=description, intents=intents)
 
+#@tasks.loop(minutes=1)
+#async def checkForTime(parameter_list):
+#    await return now = datetime.now()
+
 @bot.event
+async def on_ready():
+    print('-------')
+    print(f'we are logged in as {bot.user.name} ')
+    print(f'user.id : {bot.user.id}')
+
+@bot.command()
 async def lock(ctx):
     await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=False, read_messages=False)
 
-
-@bot.event
+@bot.command()
 async def unlock(ctx):
     await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=True, read_messages=True)
 
-schedule.every().day.at('16:25').do()
+@bot.command()
+async def start(ctx):
+    while True: 
+        now = datetime.now()
+        now = now.strftime('%H:%M ')
+        today = date.today()
+        PT = PrayTimes()
+        times = PT.get_times(today, (33.88, 9.53), 1)
+        alimsak = times['imsak']
+        almaghrib = times['maghrib']
+        # pprint(times)
+        pprint(now)
+        # pprint(today)
+        if now == almaghrib:
+            await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=True, read_messages=True)
+            print('sahha chribtekom <3 ')
+        if now == alimsak:
+            await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=False, read_messages=False)
+            print('rabi yet9abbel')
 
-schedule.every().day.at('16:30').do(unlock())
+
+
+
+
 bot.run(token)
-while True:
-    schedule.run_pending()
-    time.sleep(1)
